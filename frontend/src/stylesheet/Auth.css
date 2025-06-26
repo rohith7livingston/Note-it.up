@@ -1,0 +1,29 @@
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1; /* Take up remaining vertical space */
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.form-container h2 {
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+.form-container .subtitle {
+    margin-bottom: 2rem;
+    color: #6c757d;
+}
+
+.switch-auth {
+    margin-top: 1.5rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.error-message.centered {
+    text-align: center;
+}

@@ -1,0 +1,14 @@
+/* Hackhaton-frontend/src/stylesheet/Layout.css */
+
+.layout-container {
+    display: flex; /*  <-- THE MOST IMPORTANT LINE! This makes children (sidebar, main) go side-by-side. */
+    flex-direction: row; /* Explicitly set direction to horizontal */
+    min-height: 100vh;   /* Ensure the layout takes up the full screen height */
+}
+
+.layout-main-content {
+    flex-grow: 1; /* <-- THE SECOND MOST IMPORTANT LINE! This tells the main content to take up all available remaining space. */
+    width: 100%; /* Ensures it can shrink if needed */
+    overflow-y: auto; /* Adds a scrollbar ONLY to the main content if it overflows, not the whole page */
+    background-color: var(--background-light);
+}

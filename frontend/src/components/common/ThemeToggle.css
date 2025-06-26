@@ -1,0 +1,26 @@
+/* src/components/common/ThemeToggle.css */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    font-size: 0.95rem;
+    font-family: inherit;
+}
+
+.theme-toggle:hover {
+    background-color: var(--background-color);
+    color: var(--text-primary);
+}
+
+.theme-toggle svg {
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}

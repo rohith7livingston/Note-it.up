@@ -1,0 +1,100 @@
+/* src/stylesheet/Sidebar.css */
+.sidebar {
+    width: 280px;
+    background-color: var(--surface-color);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* <-- Pushes footer to bottom */
+    padding: 1.5rem;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.sidebar-logo {
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
+}
+
+.sidebar-logo h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* --- NEW USER PROFILE STYLES --- */
+.user-profile {
+    display: flex;
+    align-items: center;
+    background-color: var(--background-color);
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 2rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+.user-details span {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.user-details h4 {
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+/* --- END NEW STYLES --- */
+
+.sidebar-nav {
+    flex-grow: 1;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+}
+
+.sidebar-link:hover {
+    background-color: var(--background-color);
+    color: var(--text-primary);
+}
+
+.sidebar-link.active {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.2);
+}
+
+.sidebar-link svg {
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+.sidebar-footer {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.sidebar-link.logout:hover {
+    color: var(--error-color);
+}

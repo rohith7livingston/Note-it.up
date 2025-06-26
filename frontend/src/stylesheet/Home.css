@@ -1,0 +1,72 @@
+.home-container {
+    padding: 2rem 2.5rem;
+}
+
+.home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.home-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--surface-color);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    width: 100%;
+    max-width: 350px;
+}
+
+.search-bar svg {
+    color: var(--text-secondary);
+    margin-right: 0.75rem;
+}
+
+.search-bar input {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    font-size: 1rem;
+}
+
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.empty-notes {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: var(--surface-color);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--border-color);
+}
+
+.empty-notes h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.empty-notes p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.empty-notes .btn {
+    width: auto;
+}

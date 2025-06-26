@@ -1,0 +1,2796 @@
+`code.txt`
+
+```
+
+```
+
+`public/index.html`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>React App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
+
+```
+
+`public/robots.txt`
+
+```
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow:
+
+```
+
+`src/App.css`
+
+```css
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.link
+{
+  text-decoration: none;
+  color: white;
+}
+```
+
+`src/App.js`
+
+```javascript
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+
+import ProtectedRoute from './components/common/ProtectedRoute';
+import Layout from './components/common/Layout';
+
+import LandingPage from './pages/LandingPage';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import Home from './pages/Home';
+import CreateNote from './pages/CreateNote';
+import EditNote from './pages/EditNote';
+import CollabPage from './pages/CollabPage';
+import CollabEditor from './pages/CollabEditor';
+
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/create-note" element={<CreateNote />} />
+              <Route path="/edit-note/:id" element={<EditNote />} />
+              <Route path="/collab" element={<CollabPage />} />
+            </Route>
+            <Route path="/collab-editor/:noteId" element={<CollabEditor />} />
+          </Route>
+
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
+
+export default App;
+```
+
+`src/App.test.js`
+
+```javascript
+import { render, screen } from '@testing-library/react';
+import App from './App';
+
+test('renders learn react link', () => {
+  render(<App />);
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
+});
+
+```
+
+`src/components/common/Layout.jsx`
+
+```javascript
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import '../../stylesheet/Layout.css'; // <-- ADD THIS IMPORT
+
+const Layout = () => {
+    return (
+        <div className="layout-container">
+            <Sidebar />
+            <main className="layout-main-content">
+                <Outlet />
+            </main>
+        </div>
+    );
+};
+
+export default Layout;
+```
+
+`src/components/common/ProtectedRoute.jsx`
+
+```javascript
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
+const ProtectedRoute = () => {
+    const { isAuthenticated, loading } = useAuth();
+
+    if (loading) {
+        return <div>Loading...</div>; // Or a spinner component
+    }
+
+    return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+};
+
+export default ProtectedRoute;
+```
+
+`src/components/common/Sidebar.jsx`
+
+```javascript
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { FiHome, FiPlusCircle, FiUsers, FiLogOut, FiSettings } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
+import '../../stylesheet/Sidebar.css';
+
+const Sidebar = () => {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
+    return (
+        <aside className="sidebar">
+            <div className="sidebar-logo">
+                <h3>Notes.AI</h3>
+            </div>
+            <nav className="sidebar-nav">
+                <NavLink to="/home" className="sidebar-link">
+                    <FiHome />
+                    <span>Home</span>
+                </NavLink>
+                <NavLink to="/create-note" className="sidebar-link">
+                    <FiPlusCircle />
+                    <span>New Note</span>
+                </NavLink>
+                <NavLink to="/collab" className="sidebar-link">
+                    <FiUsers />
+                    <span>Collaborate</span>
+                </NavLink>
+            </nav>
+            <div className="sidebar-footer">
+                 <div className="sidebar-link">
+                    <FiSettings />
+                    <span>Settings</span>
+                </div>
+                <div className="sidebar-link" onClick={handleLogout}>
+                    <FiLogOut />
+                    <span>Logout</span>
+                </div>
+            </div>
+        </aside>
+    );
+};
+
+export default Sidebar;
+```
+
+`src/components/NotesGrid.jsx`
+
+```javascript
+import { useEffect, useState } from "react";
+import axios from "axios";
+import io from "socket.io-client"; // Import Socket.io client
+import './../stylesheet/NotesGrid.css';
+
+const socket = io("http://localhost:3001"); // Connect to backend Socket.io
+
+const NotesGrid = ({ userEmail }) => {
+    const [notes, setNotes] = useState([]);
+    const [collabNotes, setCollabNotes] = useState([]);
+    const [editNote, setEditNote] = useState(null);
+    const [editContent, setEditContent] = useState("");
+
+    useEffect(() => {
+        // Fetch personal notes
+        axios.get(`http://localhost:3001/get-notes?email=${userEmail}`)
+            .then(res => setNotes(res.data))
+            .catch(err => console.error("Error fetching notes:", err));
+
+        // Fetch collaborative notes where user is an admin
+        axios.get(`http://localhost:3001/get-collab-notes?email=${userEmail}`)
+            .then(res => setCollabNotes(res.data))
+            .catch(err => console.error("Error fetching collaborative notes:", err));
+
+        // Listen for real-time note updates
+        socket.on("noteUpdated", updatedNote => {
+            setCollabNotes(prevNotes =>
+                prevNotes.map(note =>
+                    note._id === updatedNote._id ? updatedNote : note
+                )
+            );
+        });
+
+        return () => {
+            socket.off("noteUpdated");
+        };
+    }, [userEmail]);
+
+    const handleEditClick = (note) => {
+        setEditNote(note._id);
+        setEditContent(note.detail);
+    };
+
+    const handleSave = async () => {
+        try {
+            await axios.put(`http://localhost:3001/update-note/${editNote}`, { detail: editContent });
+
+            // Emit real-time update
+            socket.emit("updateNote", { _id: editNote, detail: editContent });
+
+            // Update state and reset edit mode
+            setCollabNotes(prevNotes =>
+                prevNotes.map(note =>
+                    note._id === editNote ? { ...note, detail: editContent } : note
+                )
+            );
+            setEditNote(null);
+        } catch (error) {
+            console.error("Error updating note:", error);
+        }
+    };
+
+    return (
+        <div className="notes-grid">
+            {/* Display Personal Notes */}
+            {notes.map((note) => (
+                <div key={note._id} className="note-card">
+                    <h3>{note.title}</h3>
+                    <p>{note.detail}</p>
+                    <small>{new Date(note.createdAt).toLocaleDateString()}</small>
+                </div>
+            ))}
+
+            {/* Display Collaborative Notes */}
+            {collabNotes.map((note) => (
+                <div key={note._id} className="note-card">
+                    <h3>{note.title}</h3>
+                    {editNote === note._id ? (
+                        <>
+                            <textarea
+                                value={editContent}
+                                onChange={(e) => setEditContent(e.target.value)}
+                            />
+                            <button onClick={handleSave}>Save</button>
+                        </>
+                    ) : (
+                        <>
+                            <p>{note.detail}</p>
+                            <small>{new Date(note.createdAt).toLocaleDateString()}</small>
+                            <button onClick={() => handleEditClick(note)}>Edit</button>
+                        </>
+                    )}
+                    <span className="collab-tag">Collaborative Note</span>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+export default NotesGrid;
+
+```
+
+`src/components/Voice.jsx`
+
+```javascript
+// App.js
+import React, { useState, useEffect } from 'react';
+
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+function Voice() {
+  const [note, setNote] = useState('');
+  const [notes, setNotes] = useState([]);
+  const [listening, setListening] = useState(false);
+
+  // Start listening for voice input
+  const startListening = () => {
+    if (!recognition) {
+      alert('Speech Recognition API not supported in your browser');
+      return;
+    }
+
+    recognition.continuous = true;
+    setListening(true);
+    recognition.start();
+
+    // Accumulate transcript as results come in
+    recognition.onresult = (event) => {
+      let transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      // Append the new transcript to the previous note text
+      setNote((prevNote) => prevNote + transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error', event.error);
+      setListening(false);
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+    };
+  };
+
+  // Stop listening for voice input
+  const stopListening = () => {
+    if (recognition && listening) {
+      recognition.stop();
+      setListening(false);
+    }
+  };
+
+//   // Save the note to the backend
+//   const saveNote = async () => {
+//     if (note.trim() === '') return;
+//     try {
+//       const res = await fetch('http://localhost:5000/api/notes', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ content: note }),
+//       });
+//       const data = await res.json();
+//       // Prepend the new note to the list
+//       setNotes([data, ...notes]);
+//       setNote('');
+//     } catch (error) {
+//       console.error('Error saving note:', error);
+//     }
+//   };
+
+  // Fetch all notes from the backend
+//   const fetchNotes = async () => {
+//     try {
+//       const res = await fetch('http://localhost:5000/api/notes');
+//       const data = await res.json();
+//       setNotes(data);
+//     } catch (error) {
+//       console.error('Error fetching notes:', error);
+//     }
+//   };
+
+//   // Fetch notes when the component mounts
+//   useEffect(() => {
+//     fetchNotes();
+//   }, []);
+
+  return (
+    <div style={{ padding: '2rem' }}>
+      <h1>Voice Note Taker</h1>
+      {listening ? (
+        <button onClick={stopListening}>Stop Listening</button>
+      ) : (
+        <button onClick={startListening}>Start Voice Input</button>
+      )}
+      <div style={{ marginTop: '1rem' }}>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          rows="4"
+          cols="50"
+          placeholder="Your note will appear here..."
+        />
+      </div>
+      <div>
+        {/* <button onClick={saveNote} style={{ marginTop: '1rem' }}>
+          Save Note
+        </button> */}
+      </div>
+      <h2 style={{ marginTop: '2rem' }}>Saved Notes</h2>
+      <ul>
+        {notes.map((n) => (
+          <li key={n._id}>{n.content}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default Voice;
+```
+
+`src/context/AuthContext.js`
+
+```javascript
+import React, { createContext, useState, useContext, useEffect } from 'react';
+
+const AuthContext = createContext();
+
+export const useAuth = () => {
+    return useContext(AuthContext);
+};
+
+export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+        setLoading(false);
+    }, []);
+
+    const login = (userData) => {
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+    };
+
+    const logout = () => {
+        localStorage.removeItem('user');
+        setUser(null);
+    };
+
+    const value = {
+        user,
+        token: user?.token,
+        isAuthenticated: !!user,
+        loading,
+        login,
+        logout,
+    };
+
+    return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+};
+```
+
+`src/index.css`
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #4a90e2; /* A nice, modern blue */
+  --primary-dark: #357ebd;
+  --secondary-color: #f5a623; /* A vibrant orange for accents */
+  --background-light: #f8f9fa;
+  --background-dark: #121212;
+  --text-light: #212529;
+  --text-dark: #f8f9fa;
+  --surface-light: #ffffff;
+  --surface-dark: #1e1e1e;
+  --border-light: #dee2e6;
+  --border-dark: #333333;
+  --error-color: #e74c3c;
+  --success-color: #2ecc71;
+  --font-family: 'Poppins', sans-serif;
+  --border-radius: 8px;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--background-light);
+  color: var(--text-light);
+  line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  text-decoration: none;
+  color: var(--primary-color);
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--primary-dark);
+}
+
+/* Add more global styles for forms, buttons, etc. here */
+.form-container {
+    background-color: var(--surface-light);
+    padding: 2rem 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-light);
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.btn {
+    display: inline-block;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    background-color: var(--primary-color);
+    color: var(--surface-light);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn:hover {
+    background-color: var(--primary-dark);
+}
+
+.error-message {
+    color: var(--error-color);
+    background-color: rgba(231, 76, 60, 0.1);
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+```
+
+`src/index.js`
+
+```javascript
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+
+```
+
+`src/pages/CollabEditor.jsx`
+
+```javascript
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import io from 'socket.io-client';
+import '../stylesheet/CollabEditor.css'; // Ensure this path is correct
+
+const socket = io('http://localhost:3001');
+
+const CollabEditor = () => {
+  const { noteId } = useParams();
+  const [content, setContent] = useState('');
+
+  useEffect(() => {
+    socket.emit('joinNote', noteId);
+
+    socket.on('joinedRoom', (noteId) => {
+      console.log(`Successfully joined room: ${noteId}`);
+    });
+
+    socket.on('noteUpdate', (newContent) => {
+      console.log(`Received update: ${newContent}`);
+      setContent(newContent);
+    });
+
+    return () => {
+      socket.off('joinedRoom');
+      socket.off('noteUpdate');
+    };
+  }, [noteId]);
+
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+    socket.emit('updateNote', { noteId, content: e.target.value });
+  };
+
+  return (
+    <div id="collaborative-editor-container">
+      <h1>Collaborative Editor</h1>
+      <div id="editor-content">
+        <textarea
+          value={content}
+          onChange={handleContentChange}
+          placeholder="Start typing to collaborate..."
+        />
+      </div>
+    </div>
+  );
+};
+
+export default CollabEditor;
+
+```
+
+`src/pages/CollabPage.jsx`
+
+```javascript
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+import io from 'socket.io-client';
+import './../stylesheet/CollabPage.css';
+
+const socket = io('http://localhost:3001');
+
+const CollabPage = () => {
+  const [createNoteId, setCreateNoteId] = useState('');
+  const [createPassCode, setCreatePass] = useState('');
+  const [joinNoteId, setJoinNoteId] = useState('');
+  const [joinPassCode, setJoinPass] = useState('');
+  const navigate = useNavigate();
+
+  const handleCreate = async () => {
+    if (!createNoteId || !createPassCode) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    
+    try {
+      const response = await fetch("http://localhost:3001/collab-create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          noteId: createNoteId,
+          passCode: createPassCode,
+          title: "New Collaborative Note", 
+          detail: "This is a collaborative note.",
+          adminEmail: "hai@gadu.com"
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Collab note created successfully!");
+        navigate(`/collab-editor/${createNoteId}`);
+      } else {
+        alert(data.error);
+      }
+    } catch (error) {
+      console.error("Error creating collab note:", error);
+      alert("Failed to create collab note.");
+    }
+  };
+
+  const handleJoin = async () => {
+    if (!joinNoteId || !joinPassCode) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3001/collab-join`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          noteId: joinNoteId,
+          passCode: joinPassCode,
+          userEmail: "hai@gadu.com",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Successfully joined the collab note!");
+        navigate(`/collab-editor/${joinNoteId}`);
+      } else {
+        alert(data.error);
+      }
+    } catch (error) {
+      console.error("Error joining collab note:", error);
+      alert("Failed to join collab note.");
+    }
+  };
+
+  return (
+    <div>
+      <div className='Collab-check'>
+        <div className='join'>
+          <h1>Create a collab</h1>
+          <input type='text' placeholder='NoteId..' className='input-box' value={createNoteId} onChange={(e) => setCreateNoteId(e.target.value)} /><br />
+          <input type='text' placeholder='Note PassCode...' className='input-box' value={createPassCode} onChange={(e) => setCreatePass(e.target.value)} /><br />
+          <button className='making' onClick={handleCreate} >create</button>
+        </div>
+        <div className='create'>
+          <h1>Join a collab</h1>
+          <input type='text' placeholder='NoteId..' className='input-box' value={joinNoteId} onChange={(e) => setJoinNoteId(e.target.value)} /><br />
+          <input type='text' placeholder='Note PassCode...' className='input-box' value={joinPassCode} onChange={(e) => setJoinPass(e.target.value)} /><br />
+          <button className='making' onClick={handleJoin}>Join</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CollabPage;
+
+```
+
+`src/pages/CreateNote.jsx`
+
+```javascript
+import React, { useState } from "react";
+import { FiMic } from "react-icons/fi";
+import "./../stylesheet/CreateNote.css";
+import { Link, useNavigate } from "react-router-dom";
+
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+const CreateNote = () => {
+  const [Title, settitle] = useState("");
+  const [detail, setDetail] = useState("");
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [listening, setListening] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSummarize = async () => {
+    if (detail.length < 20) {
+      setError("Please enter at least 20 characters");
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:3001/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text_to_summarize: detail }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json(); // Try to parse error response
+        throw new Error(errorData.error || "Network response was not ok"); // Use error message from server, if available
+      }
+
+      const summaryResponse = await response.text();
+      setDetail(summaryResponse);
+    } catch (error) {
+      console.error("Error fetching summary:", error);
+      setError("Sorry, something went wrong. Please try again!");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleListening = () => {
+    if (!recognition) {
+      alert("Speech Recognition API not supported in your browser");
+      return;
+    }
+
+    if (!listening) {
+      recognition.continuous = true;
+      recognition.start();
+      setListening(true);
+
+      recognition.onresult = (event) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setDetail((prev) => prev + transcript);
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error", event.error);
+        setListening(false);
+        setError("Speech recognition error. Please check microphone permissions."); // More specific error message
+      };
+
+      recognition.onend = () => {
+        setListening(false);
+      };
+    } else {
+      recognition.stop();
+      setListening(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!Title || !detail) {
+      setError("Title and Note content are required!");
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:3001/save-note", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: Title,
+          email: "hai@gadu.com",
+          detail: detail,
+        }),
+      });
+
+      if (!response.ok) {
+         const errorData = await response.json(); // Try to parse error response
+        throw new Error(errorData.error || "Failed to save note"); // Use error message from server, if available
+      }
+
+      console.log("Note saved:");
+      navigate("/home"); // Redirect on successful save
+    } catch (error) {
+      console.error("Error saving note:", error);
+      setError("Error saving note. Please try again."); // More generic error message
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="create-note-page">
+      <div className="note-creator-container">
+        <h2>CREATE NOTES</h2>
+      </div>
+      <div className="note-creator">
+        <input
+          type="text"
+          placeholder="New Title"
+          className="note-title-input"
+          onChange={(e) => settitle(e.target.value)}
+        />
+        <div className="note-buttons">
+          <button
+            className={`recorder ${listening ? "recording" : ""}`}
+            onClick={toggleListening}
+          >
+            <FiMic size={20} color={listening ? "red" : "#fff"} />
+          </button>
+          <button className="summarize" onClick={handleSummarize} disabled={isLoading}>
+            {isLoading ? "Summarizing..." : "AI Summarizer ✨"} {/* Show loading state */}
+          </button>
+          <button className="save" onClick={handleSave} disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save"} {/* Show loading state */}
+          </button>
+        </div>
+      </div>
+      <textarea
+        rows={28}
+        className="textarea"
+        placeholder="Note details..."
+        value={detail}
+        onChange={(e) => setDetail(e.target.value)}
+      ></textarea>
+      {error && <p className="error">{error}</p>}
+      {isLoading && <p className="loading">Loading...</p>}
+    </div>
+  );
+};
+
+export default CreateNote;
+```
+
+`src/pages/EditNote.jsx`
+
+```javascript
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import './../stylesheet/EditNote.css'
+
+const EditNote = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { note } = location.state || {};
+
+    const [title, setTitle] = useState(note?.title || "");
+    const [detail, setDetail] = useState(note?.detail || "");
+    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleUpdate = async () => {
+        // ... (Your existing handleUpdate function remains unchanged)
+    };
+
+    return (
+        <div className="edit-note-page"> {/* Main page container */}
+            <div className="edit-note-container"> {/* Form container */}
+                <h2>Edit Note</h2> {/* Clearer heading */}
+                <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="New Title"
+                    className="edit-note-input" /* Specific class for input */
+                />
+                <textarea
+                    value={detail}
+                    onChange={(e) => setDetail(e.target.value)}
+                    placeholder="Note details..."
+                    className="edit-note-textarea" /* Specific class for textarea */
+                />
+                {error && <p className="error-message">{error}</p>}
+
+                <div className="edit-note-buttons">
+                    <button className="mic-button">🎤</button>
+                    <button className="summarizer-button">AI Summarizer ✨</button>
+                    <button className="save-button" onClick={handleUpdate} disabled={isLoading}>
+                        {isLoading ? "Saving..." : "Save"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default EditNote;
+```
+
+`src/pages/Home.jsx`
+
+```javascript
+import { useState, useEffect } from "react";
+import { FiEdit, FiTrash2, FiSearch } from "react-icons/fi";
+import { Link, useNavigate } from "react-router-dom";
+import { fetchNotes, deleteNote } from "../services/api";
+import "./../stylesheet/Home.css";
+
+export default function Home() {
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadNotes = async () => {
+      try {
+        const { data } = await fetchNotes();
+        setNotes(data);
+      } catch (err) {
+        setError("Failed to fetch notes.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadNotes();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this note?")) return;
+    try {
+      await deleteNote(id);
+      setNotes(notes.filter((note) => note._id !== id));
+    } catch (err) {
+      alert("Failed to delete note!");
+    }
+  };
+
+  const handleEdit = (noteId) => {
+    navigate(`/edit-note/${noteId}`);
+  };
+
+  if (loading) return <div>Loading notes...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+
+  return (
+    <div className="home-container">
+      <header className="home-header">
+        <h1>My Notes</h1>
+        <div className="search-bar">
+            <FiSearch/>
+            <input type="text" placeholder="Search notes..." />
+        </div>
+      </header>
+
+      <div className="notes-grid">
+        {notes.length > 0 ? notes.map((note) => (
+          <div key={note._id} className="note-card">
+            <div className="note-card-content">
+                <h3 className="note-title">{note.title}</h3>
+                <p className="note-detail">{note.detail.substring(0, 100)}...</p>
+            </div>
+            <div className="note-card-footer">
+                 <p className="note-date">
+                  {new Date(note.updatedAt).toLocaleDateString()}
+                </p>
+                <div className="note-actions">
+                    <button className="action-btn" onClick={() => handleEdit(note._id)}><FiEdit /></button>
+                    <button className="action-btn delete" onClick={() => handleDelete(note._id)}><FiTrash2 /></button>
+                </div>
+            </div>
+          </div>
+        )) : (
+            <div className="empty-notes">
+                <h3>No notes yet!</h3>
+                <p>Click on "New Note" to get started.</p>
+                <Link to="/create-note" className="btn">Create First Note</Link>
+            </div>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+`src/pages/LandingPage.css`
+
+```css
+/* --- Global Styles & Variables (Safe to be global) --- */
+:root {
+  --primary-bg: #F9F9F9;
+  --primary-text: #333333;
+  --secondary-text: #777777;
+  --brand-red: #D83226;
+  --white: #FFFFFF;
+  --border-light: #EAEAEA;
+}
+
+/* --- Scoped Base Styles --- */
+/* By prefixing all rules with .bear-landing-page, we ensure they only apply inside our component */
+.bear-landing-page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  background-color: var(--primary-bg);
+  color: var(--primary-text);
+  line-height: 1.6;
+}
+
+.bear-landing-page * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.bear-landing-page .container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.bear-landing-page a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.2s ease-in-out;
+}
+
+.bear-landing-page img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.bear-landing-page .section {
+  padding: 100px 0;
+}
+
+.bear-landing-page h1,
+.bear-landing-page h2,
+.bear-landing-page h3 {
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.bear-landing-page h1 { font-size: 52px; }
+.bear-landing-page h2 { font-size: 40px; }
+.bear-landing-page h3 { font-size: 24px; }
+
+.bear-landing-page p {
+  font-size: 18px;
+  color: var(--secondary-text);
+}
+
+.bear-landing-page .text-center {
+  text-align: center;
+}
+
+/* --- Scoped Components --- */
+
+/* Buttons */
+.bear-landing-page .btn {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.bear-landing-page .btn-primary {
+  background-color: var(--brand-red);
+  color: var(--white);
+  border: 2px solid var(--brand-red);
+}
+
+.bear-landing-page .btn-primary:hover {
+  opacity: 0.9;
+}
+
+.bear-landing-page .btn-secondary {
+  background-color: transparent;
+  color: var(--brand-red);
+  border: 2px solid var(--brand-red);
+}
+
+.bear-landing-page .btn-secondary:hover {
+  background-color: var(--brand-red);
+  color: var(--white);
+}
+
+/* Header */
+.bear-landing-page .header {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-light);
+  background-color: var(--primary-bg);
+}
+
+.bear-landing-page .header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bear-landing-page .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bear-landing-page .logo-text {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.bear-landing-page .nav-links ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.bear-landing-page .nav-links a {
+  font-weight: 500;
+}
+
+.bear-landing-page .nav-links a:hover {
+  color: var(--brand-red);
+}
+
+.bear-landing-page .btn-primary-nav {
+  background-color: var(--brand-red);
+  color: var(--white);
+  padding: 8px 18px;
+  border-radius: 8px;
+}
+
+.bear-landing-page .btn-primary-nav:hover {
+  color: var(--white);
+  opacity: 0.9;
+}
+
+/* Hero Section */
+.bear-landing-page .hero-section {
+  padding-top: 80px;
+  padding-bottom: 60px;
+}
+
+.bear-landing-page .hero-section h1 {
+  margin-bottom: 20px;
+}
+
+.bear-landing-page .sub-headline {
+  max-width: 600px;
+  margin: 0 auto 30px auto;
+  font-size: 20px;
+}
+
+.bear-landing-page .cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 60px;
+}
+
+.bear-landing-page .hero-image {
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+/* Features Section */
+.bear-landing-page .features-section {
+  padding-top: 60px;
+}
+
+.bear-landing-page .features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  text-align: center;
+}
+
+.bear-landing-page .feature-card h3 {
+  margin-bottom: 15px;
+}
+
+/* Content Section */
+.bear-landing-page .content-container {
+  display: flex;
+  align-items: center;
+  gap: 80px;
+}
+
+.bear-landing-page .text-content {
+  flex: 1;
+}
+
+.bear-landing-page .image-content {
+  flex: 1;
+}
+
+.bear-landing-page .content-section.layout-reverse .content-container {
+  flex-direction: row-reverse;
+}
+
+.bear-landing-page .text-content h2 {
+  margin-bottom: 20px;
+}
+
+.bear-landing-page .image-content img {
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Testimonial Section */
+.bear-landing-page .testimonial-section {
+  background-color: var(--white);
+}
+
+.bear-landing-page blockquote {
+  font-size: 28px;
+  font-weight: 600;
+  max-width: 700px;
+  margin: 0 auto 20px auto;
+  line-height: 1.4;
+  border: none;
+}
+
+.bear-landing-page cite {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--secondary-text);
+}
+
+/* Final CTA Section */
+.bear-landing-page .final-cta-section .sub-headline {
+  margin-bottom: 40px;
+}
+
+.bear-landing-page .app-store-badges a img {
+  height: 56px;
+  margin: 0 auto;
+}
+
+/* Footer */
+.bear-landing-page .footer {
+  padding: 80px 0 40px 0;
+  background-color: var(--white);
+  border-top: 1px solid var(--border-light);
+}
+
+.bear-landing-page .footer-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin-bottom: 60px;
+}
+
+.bear-landing-page .footer-column h4 {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.bear-landing-page .footer-column ul {
+  list-style: none;
+}
+
+.bear-landing-page .footer-column ul li {
+  margin-bottom: 10px;
+}
+
+.bear-landing-page .footer-column a {
+  color: var(--secondary-text);
+  font-size: 16px;
+}
+
+.bear-landing-page .footer-column a:hover {
+  color: var(--brand-red);
+}
+
+.bear-landing-page .copyright-container {
+  text-align: center;
+  padding-top: 40px;
+  border-top: 1px solid var(--border-light);
+}
+
+.bear-landing-page .copyright-container p {
+  font-size: 14px;
+}
+
+
+/* --- Responsive Media Queries (Also Scoped) --- */
+@media (max-width: 992px) {
+  .bear-landing-page h1 { font-size: 44px; }
+  .bear-landing-page h2 { font-size: 36px; }
+
+  .bear-landing-page .content-container {
+    gap: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bear-landing-page .section {
+    padding: 60px 0;
+  }
+
+  .bear-landing-page h1 { font-size: 38px; }
+  .bear-landing-page h2 { font-size: 32px; }
+  .bear-landing-page p { font-size: 16px; }
+
+  .bear-landing-page .nav-links {
+    display: none; /* In a real app, this would be a hamburger menu */
+  }
+
+  .bear-landing-page .features-grid {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+
+  .bear-landing-page .content-container {
+    flex-direction: column !important; /* Force stack on mobile */
+  }
+
+  .bear-landing-page .text-content,
+  .bear-landing-page .image-content {
+    text-align: center;
+  }
+
+  .bear-landing-page .text-content h2 {
+    margin-bottom: 15px;
+  }
+
+  .bear-landing-page .footer-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+}
+```
+
+`src/pages/LandingPage.jsx`
+
+```javascript
+import React from 'react';
+import { Link } from 'react-router-dom'; // Import Link
+import './LandingPage.css';
+
+const LandingPage = () => {
+  return (
+    // The top-level class ".bear-landing-page" is used to scope all our CSS.
+    <div className="bear-landing-page">
+      {/* Header */}
+      <header className="header">
+        <div className="container header-container">
+          <div className="logo">
+            {/* ... svg ... */}
+            <span className="logo-text">Notes.AI</span>
+          </div>
+          <nav className="nav-links">
+            <ul>
+              {/* Use placeholder links or actual routes if they exist */}
+              <li><a href="/">Blog</a></li>
+              <li><a href="/">Help</a></li>
+              <li><a href="/">Pro Features</a></li>
+              <li><Link to="/register" className="btn btn-primary-nav">Get Started</Link></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        {/* Hero Section */}
+        <section className="section hero-section">
+          <div className="container text-center">
+            <h1>The best private place for your notes</h1>
+            <p className="sub-headline">
+              A beautiful, flexible writing app for crafting notes, powered by AI.
+            </p>
+            <div className="cta-buttons">
+                {/* Point to your app's registration/login pages */}
+              <Link to="/register" className="btn btn-primary">Start for Free</Link>
+              <Link to="/login" className="btn btn-secondary">Login</Link>
+            </div>
+            <div className="hero-image-container">
+              <img src="https://bear.app/static/images/hero-macos-en.png" alt="App on macOS" className="hero-image" />
+            </div>
+          </div>
+        </section>
+
+        {/* ... rest of the page ... */}
+        {/* Replace all other href="#" with href="/" */}
+
+        {/* Example for the footer */}
+      </main>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="container footer-container">
+          <div className="footer-column">
+            <h4>Product</h4>
+            <ul>
+              <li><a href="/">Features</a></li>
+              <li><a href="/">FAQ</a></li>
+              <li><a href="/">Help</a></li>
+            </ul>
+          </div>
+          <div className="footer-column">
+            <h4>Company</h4>
+            <ul>
+              <li><a href="/">Blog</a></li>
+              <li><a href="/">Contact Us</a></li>
+              <li><a href="/">Privacy</a></li>
+            </ul>
+          </div>
+          <div className="footer-column">
+            <h4>Social</h4>
+            <ul>
+              <li><a href="/">Twitter</a></li>
+              <li><a href="/">Reddit</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="container copyright-container">
+          <p>© 2024 Notes.AI. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default LandingPage;
+```
+
+`src/pages/Login.jsx`
+
+```javascript
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { loginUser } from "../services/api";
+import '../stylesheet/Auth.css'; // Shared CSS for Login/Register
+
+function Login() {
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await loginUser(formData);
+      login(response.data); // Update auth context
+      navigate("/home");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed. Please try again.");
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="form-container">
+        <h2>Welcome Back!</h2>
+        <p className="subtitle">Login to continue to your notes.</p>
+        <form onSubmit={handleSubmit}>
+          {error && <p className="error-message">{error}</p>}
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
+          </div>
+          <button type="submit" className="btn" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
+        <p className="switch-auth">
+            Don't have an account? <Link to="/register">Sign Up</Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
+```
+
+`src/pages/Register.jsx`
+
+```javascript
+import { useState } from "react";
+import "./../stylesheet/Register.css";
+import { Link, useNavigate } from "react-router-dom";
+
+function Register() {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        confirmpassword: ''
+    });
+
+    const [error, setError] = useState(null);
+    const navigate = useNavigate(); // To navigate after successful registration
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (formData.password !== formData.confirmpassword) {
+            setError("Passwords do not match!");
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:3001/posting", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert("Registration Successful!");
+                navigate("/login"); // Redirect to login page
+            } else {
+                setError(data.error || "Registration failed");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            setError("Something went wrong. Try again!");
+        }
+    };
+
+    return (
+        <div className="hai">
+            <div className="container">
+                <h2>Sign Up</h2>
+                <form onSubmit={handleSubmit}>
+                    <label htmlFor="name">Full Name</label>
+                    <input 
+                        value={formData.name} 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        placeholder="Enter your full name" 
+                        onChange={handleChange} 
+                        required 
+                    />
+
+                    <label htmlFor="email">Email</label>
+                    <input 
+                        value={formData.email} 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="Enter your email" 
+                        onChange={handleChange} 
+                        required 
+                    />
+
+                    <label htmlFor="password">Password</label>
+                    <input 
+                        value={formData.password} 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Create a password" 
+                        onChange={handleChange} 
+                        required 
+                    />
+
+                    <label htmlFor="confirmpassword">Confirm Password</label>
+                    <input 
+                        value={formData.confirmpassword} 
+                        type="password" 
+                        id="confirmpassword" 
+                        name="confirmpassword" 
+                        placeholder="Confirm your password" 
+                        onChange={handleChange} 
+                        required 
+                    />
+
+                    {error && <p className="error">{error}</p>}
+
+                    <button type="submit">Register</button>
+                </form>
+                <p>Already have an account? <Link to="/login">Login</Link></p>
+            </div>
+        </div>
+    );
+}
+
+export default Register;
+
+```
+
+`src/reportWebVitals.js`
+
+```javascript
+const reportWebVitals = onPerfEntry => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+
+export default reportWebVitals;
+
+```
+
+`src/services/api.js`
+
+```javascript
+import axios from 'axios';
+
+const API = axios.create({
+    baseURL: 'http://localhost:3001/api', // Your backend API base URL
+});
+
+// Add a request interceptor to include the token in headers
+API.interceptors.request.use((config) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.token) {
+        config.headers.Authorization = `Bearer ${user.token}`;
+    }
+    return config;
+});
+
+// Auth endpoints
+export const loginUser = (credentials) => API.post('/auth/login', credentials);
+export const registerUser = (userData) => API.post('/auth/register', userData);
+
+// Note endpoints
+export const fetchNotes = () => API.get('/notes');
+export const createNote = (noteData) => API.post('/notes', noteData);
+export const deleteNote = (id) => API.delete(`/notes/${id}`);
+export const summarizeContent = (text) => API.post('/notes/summarize', { text_to_summarize: text });
+
+// Add other endpoints as needed...
+```
+
+`src/setupTests.js`
+
+```javascript
+// jest-dom adds custom jest matchers for asserting on DOM nodes.
+// allows you to do things like:
+// expect(element).toHaveTextContent(/react/i)
+// learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom';
+
+```
+
+`src/stylesheet/Auth.css`
+
+```css
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+}
+
+.form-container h2 {
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+}
+
+.form-container .subtitle {
+    margin-bottom: 2rem;
+    color: #6c757d;
+}
+
+.switch-auth {
+    margin-top: 1.5rem;
+    color: #6c757d;
+}
+```
+
+`src/stylesheet/CollabEditor.css`
+
+```css
+/* Global Styles */
+body {
+    background: linear-gradient(135deg, #a1c4fd, #c2e9fb); /* Soft blue gradient */
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  /* Container Styles */
+  #collaborative-editor-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInMoveUp 1s ease-in-out forwards;
+    max-width: 100vh;
+    width: 100vh;
+  }
+  
+  /* Entrance Animation */
+  @keyframes fadeInMoveUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Heading Styles */
+  #collaborative-editor-container h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+  
+  #collaborative-editor-container h1:hover {
+    transform: scale(1.05);
+    color: #3498db;
+  }
+  
+  /* Editor Content Styles */
+  #editor-content {
+    width: 100%;
+    background-color: #f9f9f9;
+    padding: 25px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  #editor-content:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Textarea Styles */
+  #editor-content textarea {
+    width: 100%;
+    min-height: 250px;
+    border: none;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 5px;
+    font-family: 'Roboto Mono', monospace;
+    resize: vertical;
+    outline: none;
+    box-sizing: border-box;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  #editor-content textarea:focus {
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.6); /* Blue glow on focus */
+  }
+  
+  /* Typewriter Effect on Placeholder */
+  #editor-content textarea::placeholder {
+    color: #aaa;
+    animation: typewriter 4s steps(40) infinite;
+  }
+  
+  @keyframes typewriter {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    #collaborative-editor-container {
+      padding: 20px;
+    }
+  }
+  
+```
+
+`src/stylesheet/CollabPage.css`
+
+```css
+/* General Page Styling */
+body {
+  font-family: sans-serif;
+  color: #333;
+  margin: 0;
+  /* display: flex; */
+  flex-direction: column; /* Main axis is vertical */
+  min-height: 100vh;
+  background-color:#4a90e2;
+}
+
+.header {
+  background-color: #f0f0f0;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: row; /* Align items horizontally */
+  flex-wrap: wrap; /* Allow wrapping if necessary */
+  justify-content: space-around; /* Distribute items evenly */
+  align-items: flex-start; /* Align items to top */
+  padding: 20px;
+  flex-grow: 1;
+}
+
+.item {
+  width: 45%; /* Adjust as needed */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px; /* For when items stack */
+  box-sizing: border-box;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .item {
+      width: 90%; /* Stack vertically on smaller screens */
+      margin-bottom: 20px; /* Add margin between stacked items */
+  }
+}
+
+.footer {
+  background-color: #333;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+```
+
+`src/stylesheet/CreateNote.css`
+
+```css
+/* CreateNote.css */
+
+.create-note-page { /* Main container */
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center; /* Center horizontally */
+    min-height: 900px; /* Full viewport height */
+    padding: 100px;
+    min-width:500px;
+}
+
+.note-creator-container h2 { /* Style the heading */
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+.note-creator {
+    display: flex;
+    flex-direction: column; /* Stack title and buttons vertically */
+    align-items: center; /* Center horizontally */
+    width: 90%; /* Occupy most of the container width */
+    max-width: 900px; /* Set a maximum width */
+    margin-bottom: 20px; /* Space between title/buttons and textarea */
+}
+
+.note-title-input {
+    font-size: 2em; /* Larger title font */
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box; /* Include padding and border in width */
+    margin-bottom: 15px; /* Space between title and buttons */
+}
+
+.note-buttons {
+    display: flex;
+    justify-content: space-around; /* Distribute buttons evenly */
+    width: 100%;
+}
+
+.recorder,
+.summarize,
+.save {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.recorder {
+    background-color: #ff4b4b; /* Red */
+    color: white;
+}
+
+.recorder:hover {
+    background-color: #e53e3e; /* Darker red */
+}
+
+.summarize {
+    background-color: #4a90e2; /* Blue */
+    color: white;
+}
+
+.summarize:hover {
+    background-color: #357abf; /* Darker blue */
+}
+
+.save {
+    background-color: #007bff; /* Blue */
+    color: white;
+}
+
+.save:hover {
+    background-color: #0056b3; /* Darker blue */
+}
+
+
+.textarea {
+    width: 90%; /* Occupy most of the container width */
+    max-width: 900px; /* Set a maximum width */
+    height: 400px; /* Adjust height as needed */
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box; /* Include padding and border in width */
+    resize: vertical; /* Allow vertical resizing */
+}
+
+.error,
+.loading {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.error {
+    color: red;
+}
+
+.loading {
+    color: gray;
+}
+
+/* Responsive Design (adjust as needed) */
+@media (max-width: 768px) {
+    .note-creator {
+        flex-direction: column; /* Stack elements vertically */
+    }
+
+    .note-buttons {
+        flex-direction: column; /* Stack buttons vertically */
+    }
+
+    .recorder,
+    .summarize,
+    .save {
+        width: 100%; /* Make buttons full width */
+        margin-bottom: 10px; /* Add space between buttons */
+    }
+}
+/* ... (Existing CSS) ... */
+
+/* Transitions */
+.create-note-page {
+    opacity: 0; /* Initially hidden */
+    transform: translateY(20px); /* Move down slightly */
+    animation: fadeInMoveUp 1s ease-in-out forwards; /* Apply animation */
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+}
+
+@keyframes fadeInMoveUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.note-creator {
+    transition: transform 0.3s ease; /* Smooth container transitions */
+}
+
+.note-creator:hover {
+    transform: scale(1.02); /* Scale up slightly on hover */
+}
+
+.note-title-input {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Input transitions */
+}
+
+.note-title-input:focus {
+    border-color: #3498db; /* Highlight border on focus */
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3); /* Blue glow on focus */
+}
+
+.recorder,
+.summarize,
+.save {
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Button transitions */
+}
+
+.recorder:hover,
+.summarize:hover,
+.save:hover {
+    transform: translateY(-2px); /* Move slightly up on hover */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+}
+
+.textarea {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Textarea transitions */
+}
+
+.textarea:focus {
+    border-color: #3498db; /* Highlight border on focus */
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3); /* Blue glow on focus */
+}
+
+/* ... (Responsive Design) ... */
+```
+
+`src/stylesheet/EditNote.css`
+
+```css
+/* EditNote.css */
+
+.edit-note-page { /* Main page container */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+
+  padding: 20px;
+}
+
+.edit-note-container {
+  height:500px;
+  max-width: 600px;
+  width: 500px; /* Adjust width for smaller screens */
+  margin: 0 auto; /* Center the container */
+  padding: 30px; /* Increased padding */
+  background: #ffffff; /* White background */
+  border-radius: 12px; /* More rounded corners */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); /* Softer shadow */
+  text-align: left; /* Align text to the left */
+}
+
+.edit-note-container h2 { /* Style the heading */
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.edit-note-input { /* Style the input */
+  width: 100%;
+  padding: 15px; /* Increased padding */
+  font-size: 18px;
+  border: 2px solid #000000;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background: #fff;
+  font-weight: bold;
+  box-sizing: border-box; /* Include padding in width */
+}
+
+.edit-note-textarea { /* Style the textarea */
+  width: 100%;
+  height: 250px;
+  padding: 15px; /* Increased padding */
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #ffffff; /* Softer background */
+  font-family: "Courier New", monospace;
+  box-sizing: border-box; /* Include padding in width */
+  resize: vertical; /* Allow vertical resizing */
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.edit-note-buttons {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  margin-top: 20px;
+}
+
+.edit-note-buttons button {
+  padding: 12px 25px; /* Increased padding */
+  border: none;
+  font-size: 16px;
+  border-radius: 8px; /* More rounded corners */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.save-button {
+  background: #000;
+  color: white;
+}
+
+.save-button:hover {
+  background: #333;
+}
+
+.summarizer-button {
+  background: #4a90e2;
+  color: white;
+}
+
+.summarizer-button:hover {
+  background: #357abf;
+}
+
+.mic-button {
+  background: #ff4b4b;
+  color: white;
+}
+
+.mic-button:hover {
+  background: #d83434;
+}
+
+/* Responsive Design (adjust as needed) */
+@media (max-width: 768px) {
+  .edit-note-container {
+      padding: 20px; /* Adjust padding on smaller screens */
+  }
+
+  .edit-note-buttons {
+      flex-direction: column; /* Stack buttons vertically */
+      align-items: flex-end; /* Align buttons to the right */
+  }
+
+  .edit-note-buttons button {
+      margin: 10px 0; /* Add margin between stacked buttons */
+      width: 100%; /* Make buttons full width */
+  }
+}
+/* ... (Existing CSS) ... */
+
+/* Transitions */
+.edit-note-container {
+  transition: transform 0.3s ease, opacity 0.3s ease; /* Smooth container transitions */
+  opacity: 0.95; /* Slightly less opaque initially */
+}
+
+.edit-note-container:hover {
+  transform: scale(1.02); /* Scale up slightly on hover */
+  opacity: 1;
+}
+
+.edit-note-input, .edit-note-textarea {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Input/textarea transitions */
+}
+
+.edit-note-input:focus, .edit-note-textarea:focus {
+  border-color: #3498db; /* Highlight border on focus */
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3); /* Blue glow on focus */
+}
+
+.edit-note-buttons button {
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Button transitions */
+}
+
+.edit-note-buttons button:hover {
+  transform: translateY(-2px); /* Move slightly up on hover */
+}
+
+.save-button:hover {
+  background: #2980b9; /* Slightly darker blue */
+}
+
+.summarizer-button:hover {
+  background: #2980b9; /* Slightly darker blue */
+}
+
+.mic-button:hover {
+  background: #c0392b; /* Slightly darker red */
+}
+
+
+/* ... (Responsive Design) ... */
+```
+
+`src/stylesheet/Home.css`
+
+```css
+/* .home-container {
+    padding: 2rem;
+}
+
+.home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.home-header h1 {
+    color: var(--text-light);
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--surface-light);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    width: 300px;
+}
+
+.search-bar svg {
+    color: #6c757d;
+    margin-right: 0.5rem;
+}
+
+.search-bar input {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    font-size: 1rem;
+}
+
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.note-card {
+    background: var(--surface-light);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.note-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+}
+
+.note-title {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.note-detail {
+    color: #6c757d;
+    flex-grow: 1;
+}
+
+.note-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.note-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: #6c757d;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.action-btn:hover {
+    background-color: #f1f3f5;
+}
+
+.action-btn.delete:hover {
+    color: var(--error-color);
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
+.empty-notes {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem;
+    background-color: var(--surface-light);
+    border-radius: var(--border-radius);
+}
+
+.empty-notes .btn {
+    width: auto;
+    margin-top: 1.5rem;
+} */
+```
+
+`src/stylesheet/Layout.css`
+
+```css
+/* Hackhaton-frontend/src/stylesheet/Layout.css */
+
+.layout-container {
+    display: flex; /*  <-- THE MOST IMPORTANT LINE! This makes children (sidebar, main) go side-by-side. */
+    flex-direction: row; /* Explicitly set direction to horizontal */
+    min-height: 100vh;   /* Ensure the layout takes up the full screen height */
+}
+
+.layout-main-content {
+    flex-grow: 1; /* <-- THE SECOND MOST IMPORTANT LINE! This tells the main content to take up all available remaining space. */
+    width: 100%; /* Ensures it can shrink if needed */
+    overflow-y: auto; /* Adds a scrollbar ONLY to the main content if it overflows, not the whole page */
+    background-color: var(--background-light);
+}
+```
+
+`src/stylesheet/Login.css`
+
+```css
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: rgb(255, 255, 255);
+    /*display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.container {
+    margin-top: 140px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 5px 5px 5px rgba(236, 236, 236, 0.422);
+    width: 350px;
+    text-align: center;
+    
+}
+h2 {
+    color: #000000;
+    margin-bottom: 20px;
+    
+}
+label {
+    margin-top: 10px;
+    color: #000000;
+    /*display: block;
+    font-weight: bold;
+    
+    text-align: left;*/
+    text-align: left;
+    display: block;
+}
+.input-log {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 8px;
+    background: red;
+    font-size: 14px;
+    background-color: #ffefda;
+}
+.button-log {
+    
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 15px;
+    transition: 0.5s;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 14px;
+    background-color: #eaeaea;
+}
+
+.button-log:hover {
+    background: rgba(20, 20, 20, 0.285);
+    
+}
+.link
+{
+  text-decoration: none;
+  color: white;
+}
+```
+
+`src/stylesheet/NotesGrid.css`
+
+```css
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    padding: 20px;
+    background-color: #fdfde7;
+}
+
+.note-card {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.collab-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: gold;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+```
+
+`src/stylesheet/Register.css`
+
+```css
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: rgb(56, 56, 56);
+    /*display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.container {
+    margin-top: 140px;
+    background: rgba(197, 195, 195, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 15px 15px 15px rgba(208, 201, 201, 0.422);
+    width: 350px;
+    text-align: center;
+    
+}
+h2 {
+    color: #000000;
+    margin-bottom: 20px;
+    
+}
+label {
+    margin-top: 10px;
+    color: #444;
+    /*display: block;
+    font-weight: bold;
+    
+    text-align: left;*/
+    text-align: left;
+    display: block;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 8px;
+    background: red;
+    font-size: 14px;
+    background-color: #eaeaea;
+}
+button {
+    
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 15px;
+    transition: 0.5s;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 14px;
+    background-color: #eaeaea;
+}
+
+button:hover {
+    background: rgba(20, 20, 20, 0.285);
+    
+}
+```
+
+`src/stylesheet/Sidebar.css`
+
+```css
+/* Hackhaton-frontend/src/stylesheet/Sidebar.css */
+
+.sidebar {
+    width: 260px;
+    background-color: var(--surface-light);
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    transition: width 0.3s ease;
+}
+
+.sidebar-logo {
+    margin-bottom: 2.5rem;
+    padding: 0 0.5rem;
+}
+
+.sidebar-logo h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.sidebar-nav {
+    flex-grow: 1;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius);
+    color: #6c757d; /* Muted text color for non-active links */
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+}
+
+.sidebar-link:hover {
+    background-color: #f1f3f5;
+    color: var(--text-light);
+}
+
+/* Style for the active NavLink */
+.sidebar-link.active {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
+.sidebar-link svg {
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+.sidebar-footer {
+    margin-top: auto; /* Pushes the footer to the bottom */
+}
+```
+

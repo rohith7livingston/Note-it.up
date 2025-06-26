@@ -1,0 +1,73 @@
+/* Used by both CreateNote.jsx and EditNote.jsx */
+
+.note-editor-page {
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.note-editor-container {
+    width: 100%;
+    max-width: 800px;
+}
+
+.note-editor-container h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.note-title-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: inherit;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+    background-color: transparent;
+}
+
+.note-title-input::placeholder {
+    color: #cbd5e1;
+}
+
+.note-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-action {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.btn-action:hover {
+    background-color: #f1f3f5;
+    border-color: #d1d5db;
+    color: var(--text-primary);
+}
+
+
+.note-textarea {
+    width: 100%;
+    min-height: 50vh;
+    border: none;
+    outline: none;
+    font-size: 1.1rem;
+    font-family: inherit;
+    line-height: 1.8;
+    resize: vertical;
+    background-color: transparent;
+}
+
+.note-textarea::placeholder {
+    color: #9ca3af;
+}
