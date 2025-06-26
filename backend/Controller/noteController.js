@@ -1,5 +1,5 @@
 const Note = require('../Models/NotesModel');
-const summarizeText = require('./summarizer'); // consistent naming
+const summarizeText = require('./Summarizer'); // consistent naming
 const asyncHandler = require('../Middleware/asyncHandler');
 
 // @desc    Get all notes for a user
