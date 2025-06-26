@@ -9,7 +9,7 @@ import { FiFeather, FiLock, FiShare2, FiZap, FiAward, FiGithub, FiLinkedin, FiGr
 const developers = [
   { name: 'Rohith syam Livingston D', role: '[Lead] Full-Stack & Backend Devops', github: 'https://github.com/rohith7livingston/', linkedin: 'https://www.linkedin.com/in/rohith-livingston/' },
   { name: 'Fareed Shaik', role: 'Frontend & UI/UX Specialist', github: '#', linkedin: '#' },
-  { name: 'https://github.com/PadalaDevisrisairam', role: 'Database & API Architect', github: 'https://github.com/PadalaDevisrisairam', linkedin: '#' },
+  { name: 'PadalaDevisrisairam', role: 'Database & API Architect', github: 'https://github.com/PadalaDevisrisairam', linkedin: '#' },
   { name: 'NIKHILESWAR', role: 'orcehstrator & Real-time Specialist', github: 'https://github.com/NIKHILESWAR369', linkedin: 'https://www.linkedin.com/in/nikhileswar-relangi-b3b725280?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app' },
 ];
 
