@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance with a base URL
 const API = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001/api',
+    baseURL: process.env.REACT_APP_API_URL || 'https://note-it-up.onrender.com/api',
 });
 
 // Request Interceptor: Add the auth token to every request if it exists
